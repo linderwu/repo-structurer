@@ -140,22 +140,25 @@ After /graphify completes, the agent MUST:
 
 ### Step 5 - Extract wiki/ content from graphify insights
 
-**Derived from Phase 2's graph.json.** Use the function relationship network to extract concepts and procedures.
+**MANDATORY: Every node in graph.json MUST have a corresponding wiki entry.**
 
-For each meaningful module, create:
-- `wiki/concepts/[module-name].md` — what each function/module does
-- `wiki/procedures/[process-name].md` — how data flows through function chains
+The wiki layer is derived from `graphify/graph.json`. For each node in the graph, create complete documentation:
+
+1. **Traverse all nodes** in `graph.json` — every function/module becomes a wiki page
+2. **For each node**, document:
+   - What it does (from code + docstrings)
+   - What it connects to (inbound/outbound edges from graph.json)
+   - Why it exists in this form (derived from call chain context)
+3. **Cross-reference relationships** — each wiki page links to related nodes using graph edges
+
+Create these per node:
+- `wiki/concepts/[node-name].md` — what this node does
+- `wiki/procedures/[flow-name].md` — chains of nodes that form a process
 - `wiki/decisions/[decision-name].md` — why design choices were made
 - `wiki/patterns/[issue-name].md` — runtime-learned: known issues, debug clues, workarounds
 - `wiki/reference/[external-resource].md` — external references: API docs, third-party docs, citations
 
-**Templates:** Use the templates in `references/` as examples:
-- `references/concept-template.md` — for concepts/
-- `references/procedure-template.md` — for procedures/
-- `references/decision-template.md` — for decisions/
-- `references/pattern-template.md` — for patterns/
-- `references/reference-template.md` — for reference/
-- `references/openspec-template.md` — for spec/
+**Templates:** Use the templates in `references/` as examples.
 
 **Filename convention:** `[noun-phrase].md` — use descriptive nouns, not verbs. Example filenames:
 - `concepts/auth-service.md` — not `Authentication.md`
@@ -168,6 +171,8 @@ Base wiki pages on graphify's graph.json:
 - Hub functions (high-degree nodes) → core concepts
 - Community clusters → module-level procedures
 - Cross-module edges → interfaces and shared data flows
+
+**Every node gets a wiki entry. No node is left undocumented.**
 
 ### Step 6 - Generate spec/ (openspec format)
 
