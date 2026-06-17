@@ -19,6 +19,21 @@ repo/
 
 Use when asked to "structure a repo", "transform to 4-layer format", "prepare repo for knowledge management", or similar.
 
+## Execution Order (Strict — Do Not Reorder)
+
+**Phase 1 — Code Preservation:**
+1. Accept path
+2. Create directory structure
+3. Copy ALL code to `raw/` (immutable snapshot)
+
+**Phase 2 — Function Relationship Mapping:**
+4. Scan each function's functionality with graphify → build relationship network in `graphify/`
+
+**Phase 3 — Knowledge Extraction:**
+5. Extract wiki/ content from graphify insights
+6. Generate spec/ from code + graph analysis
+7. Create index files
+
 ## Workflow
 
 ### Step 1 - Accept path
@@ -49,48 +64,41 @@ rsync -av --exclude='node_modules' --exclude='.git' --exclude='dist' --exclude='
 echo "raw/ done"
 ```
 
-### Step 4 - Run /graphify on raw/ (REQUIRED — do not skip)
+### Step 4 - Scan function-level relationships with /graphify (REQUIRED — do not skip)
 
-**This step is mandatory.** The `graphify/` layer is the core of this format; it MUST be generated.
+**Phase 2 — Function relationship mapping.** This step scans every function and builds a relationship network.
 
-1. First ensure graphify is installed:
+1. Ensure graphify is installed:
 ```bash
 pip install graphifyy --quiet --break-system-packages 2>&1 | tail -3
 ```
 
-2. Then invoke the graphify skill from the raw/ directory:
+2. Run /graphify from the raw/ directory — this scans every function's calls, imports, and data flow:
 ```bash
 cd "$PATH/raw"
 /graphify . --output-dir "$PATH/graphify" --mode deep 2>&1 | tail -10
 ```
 
-This MUST produce these files in `graphify/`:
+This step MUST produce:
+- `graph.json` — every function as a node; edges = calls, imports, data flow
 - `graph.html` — interactive visualization
-- `graph.json` — raw graph data (function-level nodes with call/import edges)
-- `GRAPH_REPORT.md` — community detection, god nodes, surprising connections
+- `GRAPH_REPORT.md` — community clusters, hub functions, cross-module edges
 
-If graphify fails, do NOT proceed to Step 5. Stop and report the error. The wiki and spec layers depend on graph.json for identifying hub functions and cross-module edges.
+**The wiki and spec layers are derived from graph.json.** If graphify fails, stop and report the error — do not skip this step.
 
-### Step 5 - Extract wiki/ content (concepts + procedures)
+### Step 5 - Extract wiki/ content from graphify insights
 
-Read key source files to extract:
-- **concepts/** — what each module/file does (from comments, function names, docstrings)
-- **procedures/** — how processes flow (from function calls, data flow)
-- **decisions/** — why design choices were made (from comments, naming conventions)
+**Derived from Phase 2's graph.json.** Use the function relationship network to extract concepts and procedures.
 
-```bash
-# List top-level source files
-find "$PATH/raw" -maxdepth 3 -type f \( -name "*.py" -o -name "*.ts" -o -name "*.js" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \) | head -20
-```
+For each meaningful module, create:
+- `wiki/concepts/[module-name].md` — what each function/module does
+- `wiki/procedures/[process-name].md` — how data flows through function chains
+- `wiki/decisions/[decision-name].md` — why design choices were made
 
-For each meaningful module, create a wiki page:
-- `wiki/concepts/[module-name].md`
-- `wiki/procedures/[process-name].md`
-
-Use graphify output (`graph.json`) to identify:
-- High-degree nodes (hub functions)
-- Communities (grouped functionality)
-- Cross-module edges (interfaces between components)
+Base wiki pages on graphify's graph.json:
+- Hub functions (high-degree nodes) → core concepts
+- Community clusters → module-level procedures
+- Cross-module edges → interfaces and shared data flows
 
 ### Step 6 - Generate spec/ (openspec format)
 
