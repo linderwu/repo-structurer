@@ -28,11 +28,12 @@ Use when asked to "structure a repo", "transform to 4-layer format", "prepare re
 
 **Phase 2 — Function Relationship Mapping:**
 4. Scan each function's functionality with graphify → build relationship network in `graphify/`
+5. Agent reads graph output → understands major functional blocks → writes concept descriptions
 
 **Phase 3 — Knowledge Extraction:**
-5. Extract wiki/ content from graphify insights
-6. Generate spec/ from code + graph analysis
-7. Create index files
+6. Extract wiki/ content from graphify insights
+7. Generate spec/ from code + graph analysis
+8. Create index files
 
 ## Workflow
 
@@ -85,6 +86,18 @@ This step MUST produce:
 - `GRAPH_REPORT.md` — community clusters, hub functions, cross-module edges
 
 **The wiki and spec layers are derived from graph.json.** If graphify fails, stop and report the error — do not skip this step.
+
+### Step 4.5 — Agent reads graphify output to understand the codebase
+
+**Critical: The agent must read and understand graphify's output before writing wiki content.**
+
+After /graphify completes, the agent MUST:
+1. Read `graphify/GRAPH_REPORT.md` — understand community clusters, hub functions, and insights
+2. Read `graphify/graph.json` — understand the full function-level relationship network
+3. Identify major functional blocks (communities of functions that work together)
+4. Write concept descriptions for each large functional block in the codebase
+
+**Concept descriptions** are plain-language summaries of what a functional area does, not just file-level summaries. Use the graph to understand which functions cluster together and why.
 
 ### Step 5 - Extract wiki/ content from graphify insights
 
