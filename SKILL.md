@@ -5,13 +5,17 @@ description: "Transform a project repo into a 4-layer structured format: raw/, g
 
 # Repo Structurer
 
-Transform any project repo into a structured 4-layer format:
+Transform any project repo into a structured 4-layer + 2-sublayer format:
 
 ```
 repo/
   raw/           # immutable original code
   graphify/      # function-level knowledge graph (via graphify)
-  wiki/          # concepts, procedures, decisions
+  wiki/
+    concepts/    # what each module does (design-time)
+    procedures/  # how data flows through function chains
+    decisions/   # why design choices were made
+    patterns/    # runtime-learned: known issues, debug clues, workarounds
   spec/          # openspec-format specifications
 ```
 
@@ -42,9 +46,10 @@ Use when asked to "structure a repo", "transform to 4-layer format", "prepare re
 5. Agent reads graph output → understands major functional blocks → writes concept descriptions
 
 **Phase 3 — Knowledge Extraction:**
-6. Extract wiki/ content from graphify insights
+6. Extract wiki/ content from graphify insights (concepts, procedures, decisions)
 7. Generate spec/ from code + graph analysis
 8. Create index files
+9. Establish patterns/ for runtime-learned knowledge (known issues, debug clues)
 
 ## Workflow
 
@@ -61,7 +66,7 @@ If `PATH_NOT_FOUND`, stop and ask for a valid path.
 ### Step 2 - Create directory structure
 
 ```bash
-mkdir -p "$PATH/raw" "$PATH/graphify" "$PATH/wiki" "$PATH/spec"
+mkdir -p "$PATH/raw" "$PATH/graphify" "$PATH/wiki/concepts" "$PATH/wiki/procedures" "$PATH/wiki/decisions" "$PATH/wiki/patterns" "$PATH/spec"
 echo "Directories created"
 ```
 
@@ -140,6 +145,7 @@ For each meaningful module, create:
 - `wiki/concepts/[module-name].md` — what each function/module does
 - `wiki/procedures/[process-name].md` — how data flows through function chains
 - `wiki/decisions/[decision-name].md` — why design choices were made
+- `wiki/patterns/[issue-name].md` — runtime-learned: known issues, debug clues, workarounds
 
 Base wiki pages on graphify's graph.json:
 - Hub functions (high-degree nodes) → core concepts
@@ -206,7 +212,11 @@ graphify/     — function-level knowledge graph
   graph.html        — interactive visualization
   graph.json        — raw graph data
   GRAPH_REPORT.md   — community detection + insights
-wiki/         — extracted concepts + procedures
+wiki/
+  concepts/    — what each module does
+  procedures/  — how data flows through function chains
+  decisions/   — why design choices were made
+  patterns/    — runtime-learned: known issues, debug clues, workarounds
 spec/         — openspec-format specifications
 ```
 
@@ -215,5 +225,6 @@ spec/         — openspec-format specifications
 - **Step 4 (/graphify) is MANDATORY — do not skip or replace with manual extraction**
 - Do NOT modify anything in `raw/` after copying
 - `wiki/` and `spec/` are editable; keep them in sync with code changes
+- `wiki/decisions/` and `wiki/patterns/` should be updated whenever a decision is made or a runtime issue is discovered
 - If graphify fails on large repos, run on subdirectories first
 - Use Traditional Chinese for wiki content unless source is clearly English
