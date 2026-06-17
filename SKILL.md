@@ -15,6 +15,17 @@ repo/
   spec/          # openspec-format specifications
 ```
 
+## Graphify
+
+**Graphify** (package: `graphifyy`, double-y) — https://github.com/safishamsi/graphify
+
+Turns any codebase into a queryable knowledge graph. Run `/graphify .` and get:
+- `graph.html` — interactive node graph
+- `graph.json` — function-level nodes + call/import edges
+- `GRAPH_REPORT.md` — community detection, hub functions, cross-module insights
+
+This skill uses graphify to scan every function's calls, imports, and data flow, then builds the `graphify/` layer as the foundation for wiki extraction.
+
 ## Trigger
 
 Use when asked to "structure a repo", "transform to 4-layer format", "prepare repo for knowledge management", or similar.
@@ -69,16 +80,38 @@ echo "raw/ done"
 
 **Phase 2 — Function relationship mapping.** This step scans every function and builds a relationship network.
 
-1. Ensure graphify is installed:
-```bash
-pip install graphifyy --quiet --break-system-packages 2>&1 | tail -3
-```
+1. Install graphify (official package: `graphifyy`, double-y on PyPI):
 
-2. Run /graphify from the raw/ directory — this scans every function's calls, imports, and data flow:
-```bash
-cd "$PATH/raw"
-/graphify . --output-dir "$PATH/graphify" --mode deep 2>&1 | tail -10
-```
+   **Recommended — uv (fastest, isolates environment):**
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh 2>&1 | tail -3
+   uv tool install graphifyy 2>&1 | tail -5
+   ```
+
+   **Alternative — pipx:**
+   ```bash
+   pipx install graphifyy 2>&1 | tail -5
+   ```
+
+   **Alternative — pip:**
+   ```bash
+   pip install graphifyy --break-system-packages 2>&1 | tail -5
+   ```
+
+   If pip install puts graphify outside PATH, add `~/.local/bin` to PATH or use `python3 -m graphify`.
+
+2. Register the OpenClaw skill:
+   ```bash
+   graphify install --platform claw 2>&1 | tail -5
+   ```
+
+3. Run /graphify from the raw/ directory — this scans every function's calls, imports, and data flow:
+   ```bash
+   cd "$PATH/raw"
+   /graphify . --output-dir "$PATH/graphify" --mode deep 2>&1 | tail -10
+   ```
+
+   **Requirements:** Python 3.10+, uv or pipx recommended.
 
 This step MUST produce:
 - `graph.json` — every function as a node; edges = calls, imports, data flow
