@@ -5,7 +5,7 @@ description: "Transform a project repo into a 4-layer structured format: raw/, g
 
 # Repo Structurer
 
-Transform any project repo into a structured 4-layer + 2-sublayer format:
+Transform any project repo into a structured 4-layer + sublayer format:
 
 ```
 repo/
@@ -16,6 +16,7 @@ repo/
     procedures/  # how data flows through function chains
     decisions/   # why design choices were made
     patterns/    # runtime-learned: known issues, debug clues, workarounds
+    reference/   # 外部參考資料：API 文件、第三方文檔、引用來源
   spec/          # openspec-format specifications
 ```
 
@@ -66,7 +67,7 @@ If `PATH_NOT_FOUND`, stop and ask for a valid path.
 ### Step 2 - Create directory structure
 
 ```bash
-mkdir -p "$PATH/raw" "$PATH/graphify" "$PATH/wiki/concepts" "$PATH/wiki/procedures" "$PATH/wiki/decisions" "$PATH/wiki/patterns" "$PATH/spec"
+mkdir -p "$PATH/raw" "$PATH/graphify" "$PATH/wiki/concepts" "$PATH/wiki/procedures" "$PATH/wiki/decisions" "$PATH/wiki/patterns" "$PATH/wiki/reference" "$PATH/spec"
 echo "Directories created"
 ```
 
@@ -146,6 +147,7 @@ For each meaningful module, create:
 - `wiki/procedures/[process-name].md` — how data flows through function chains
 - `wiki/decisions/[decision-name].md` — why design choices were made
 - `wiki/patterns/[issue-name].md` — runtime-learned: known issues, debug clues, workarounds
+- `wiki/reference/[external-resource].md` — external references: API docs, third-party docs, citations
 
 Base wiki pages on graphify's graph.json:
 - Hub functions (high-degree nodes) → core concepts
@@ -217,6 +219,7 @@ wiki/
   procedures/  — how data flows through function chains
   decisions/   — why design choices were made
   patterns/    — runtime-learned: known issues, debug clues, workarounds
+  reference/   — external references: API docs, third-party docs, citations
 spec/         — openspec-format specifications
 ```
 
