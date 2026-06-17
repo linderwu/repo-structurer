@@ -149,6 +149,14 @@ For each meaningful module, create:
 - `wiki/patterns/[issue-name].md` — runtime-learned: known issues, debug clues, workarounds
 - `wiki/reference/[external-resource].md` — external references: API docs, third-party docs, citations
 
+**Templates:** Use the templates in `references/` as examples:
+- `references/concept-template.md` — for concepts/
+- `references/procedure-template.md` — for procedures/
+- `references/decision-template.md` — for decisions/
+- `references/pattern-template.md` — for patterns/
+- `references/reference-template.md` — for reference/
+- `references/openspec-template.md` — for spec/
+
 **Filename convention:** `[noun-phrase].md` — use descriptive nouns, not verbs. Example filenames:
 - `concepts/auth-service.md` — not `Authentication.md`
 - `procedures/order-checkout-flow.md` — not `Checkout.md`
