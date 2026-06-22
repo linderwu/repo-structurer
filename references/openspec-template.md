@@ -1,5 +1,9 @@
 # OpenSpec Template Reference
 
+> OpenSpec lives in `spec/` (in the workspace, NOT in `wiki/`).
+> OpenSpec is the **construction blueprint / contract** for each module.
+> OpenSpec must cite the actual code path in `repos/<repo-name>/`.
+
 ## Per-Module Spec: `spec/[module]/SPEC.md`
 
 ```markdown
@@ -8,7 +12,12 @@
 ## Summary
 One-paragraph description of what this module does and why it exists.
 
-## Functionality
+## Source of Truth
+- **Repository**: `repos/<repo-name>/`
+- **Primary path**: `path/to/module/`
+- **Entry point**: `path/to/main/file.ts`
+
+## Construction Blueprint
 
 ### Core Features
 - **Feature 1**: ...
@@ -25,6 +34,10 @@ One-paragraph description of what this module does and why it exists.
 ### Side Effects
 - Any mutations, I/O, network calls, or state changes
 
+### Cross-Repo Contracts
+- Calls into: `repos/<other-repo>/path/to/endpoint` (link spec)
+- Called by: `repos/<other-repo>/path/to/caller` (link spec)
+
 ## Interface
 
 ```[language]
@@ -35,7 +48,7 @@ One-paragraph description of what this module does and why it exists.
 How data moves through this module (input → transformation → output).
 
 ## Dependencies
-- **Internal**: [other modules this depends on]
+- **Internal**: [other modules this depends on, link their specs]
 - **External**: [libraries, services, infrastructure]
 
 ## Edge Cases
@@ -47,6 +60,10 @@ How errors are detected, logged, and propagated.
 
 ## Testing Notes
 Key test scenarios or testing approach (not actual tests — those go in code).
+
+## Wiki Cross-References
+- [[entity-name]] — wiki entity for this module
+- [[concept-decision-name]] — design decision that shaped this contract
 ```
 
 ## System Overview Spec: `spec/SPEC.md`
@@ -57,20 +74,25 @@ Key test scenarios or testing approach (not actual tests — those go in code).
 ## Overview
 High-level description of the system, its purpose, and scope.
 
+## Repositories
+- `repos/<repo-a>/` — role, primary language
+- `repos/<repo-b>/` — role, primary language
+- `repos/<shared>/` — shared library / types
+
 ## Architecture
-[Key components and how they interact]
+[Key components and how they interact, including cross-repo boundaries]
 
 ## Data Model
-[Core entities and their relationships]
+[Core entities and their relationships, with citations to repos/ source files]
 
 ## API Surface
-[Public endpoints and their purpose]
+[Public endpoints and their purpose; cite spec/<module>/SPEC.md entries]
 
 ## Configuration
 [Environment variables, feature flags, key settings]
 
 ## Deployment
-[How the system is deployed, infrastructure requirements]
+[How the system is deployed, infrastructure requirements, per-repo deployment notes]
 
 ## Security Considerations
 [Auth, authorization, data classification, sensitive handling]

@@ -1,7 +1,7 @@
 ---
 title: [Topic A] vs [Topic B]
 type: comparison
-tags: [architecture, ...]
+tags: [architecture, library-choice, vendor, ...]
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 ---
@@ -19,6 +19,7 @@ One-paragraph comparison framing.
 | Operational cost | ... | ... |
 | Developer experience | ... | ... |
 | Ecosystem maturity | ... | ... |
+| Fit for our repos | ... | ... |
 
 ## When to Choose A
 - ...
@@ -28,7 +29,9 @@ One-paragraph comparison framing.
 
 ## Our Context
 Why we chose what we chose (link to [[concept-decision-name]]).
+Which repos are affected: `[[repos/<repo>/entity]]` ...
 
 ## References
 - [[concept-decision-name]]
+- [[wiki/raw/evidence-file]]
 - External: <https://example.com>

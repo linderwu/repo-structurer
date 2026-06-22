@@ -1,12 +1,15 @@
 ---
 title: [Pattern Name]
 type: pattern
-tags: [runtime-issue, performance, ...]
+tags: [runtime-issue, performance, debug-clue, work-around, ...]
+trigger: incident | post-mortem | perf-observation | on-call
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 ---
 
 # [Pattern Name]
+
+> A pattern is a **runtime experience** — what you see, why it happens, how to work around it.
 
 ## Summary
 The runtime observation in one sentence.
@@ -15,7 +18,9 @@ The runtime observation in one sentence.
 What you see when this pattern triggers (log lines, error messages, behavior).
 
 ## Root Cause
-Why this happens (cite code or config).
+Why this happens (cite code path or config).
+- **Source**: `repos/<repo-name>/path/to/file:LINE`
+- **Why**: explanation
 
 ## Workaround
 How to mitigate or work around this issue.
@@ -23,11 +28,14 @@ How to mitigate or work around this issue.
 ## Detection
 How to identify this pattern in logs or metrics.
 
-## Related
-- [[concept-decision-name]] — design decision that influenced this
+## Related Entities
 - [[entity-name]] — entity affected
-- [[wiki/raw/incident-record]] — incident that first surfaced this
+- (cross-repo) `[[repos/<other-repo>/entity-name]]`
+
+## Related Decisions
+- [[concept-decision-name]] — design decision that influenced this
 
 ## References
+- [[wiki/raw/incident-record]] — incident that first surfaced this
 - Internal logs: ...
 - External: <https://example.com>
