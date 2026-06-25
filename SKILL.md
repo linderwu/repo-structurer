@@ -3,7 +3,7 @@ name: ouroboros
 description: "Ouroboros — Transform project repo(s) into Trivium-aligned multi-repo structure: raw/ (evidence), repos/ (code), graphify/ (bridge), wiki/ (decisions + procedural architecture), spec/ (blueprint)"
 ---
 
-# Ouroboros (Trivium v2.4)
+# Ouroboros (Trivium v2.5)
 
 Transform any project (single repo or multi-repo workspace) into a Trivium-aligned knowledge structure. Named for the snake that consumes itself to be reborn — every codebase becomes its own auditable knowledge graph.
 
@@ -85,11 +85,50 @@ There is **no `wiki/raw/`**. Wiki pages that need to cite evidence use `[[raw/YY
 
 ## Execution Order (strict — do not reorder)
 
-### Phase 0 — Accept & Inventory
+### Phase 0 — Size Assessment
+
+**核心原則：LLM 本身就擅長理解小型程式碼的關聯性。工具是「增強」而非「取代」。**
 
 0.1 Accept target path (or workspace root for multi-repo)
 0.2 Identify scope: single repo vs multi-repo
 0.3 Inventory existing evidence in `raw/` — DO NOT mutate (single canonical evidence layer)
+0.4 **評估專案大小** — 決定使用哪些工具
+
+```bash
+# 計算重要程式碼檔案數量
+FILE_COUNT=$(find "$PATH/repos" -type f \
+  \( -name "*.py" -o -name "*.ts" -o -name "*.js" \
+     -o -name "*.cpp" -o -name "*.h" -o -name "*.java" \
+     -o -name "*.go" -o -name "*.rs" \
+  \) 2>/dev/null | wc -l)
+
+if [ "$FILE_COUNT" -lt 5 ]; then
+  echo "size: SMALL"
+  echo "tools: wiki_only"
+elif [ "$FILE_COUNT" -lt 20 ]; then
+  echo "size: MEDIUM"
+  echo "tools: graphify_key_modules"
+else
+  echo "size: LARGE"
+  echo "tools: codebase_memory_mcp_plus_graphify"
+fi
+```
+
+### Size-Based Tool Selection
+
+| 等級 | 標準 | 工具策略 | 理由 |
+|------|------|---------|------|
+| **S** | < 5 檔案 | LLM 自己理解 + wiki | 工具啟動成本 > LLM 自己理解的成本 |
+| **M** | 5-20 檔案 | graphify 關鍵模組 | 局部關聯已足夠，不需要全域圖 |
+| **L** | > 20 檔案 | codebase-memory-mcp + graphify | 超出 LLM 上下文，需要工具輔助 |
+
+**Tool Selection Matrix:**
+
+| 大小 | wiki | graphify | codebase-memory-mcp | spec |
+|------|------|----------|---------------------|------|
+| S    | ✅    | ❌       | ❌                  | ⚠️   |
+| M    | ✅    | ⚠️關鍵模組 | ❌                  | ✅    |
+| L    | ✅    | ✅       | ✅                  | ✅    |
 
 ### Phase 1 — Evidence Preservation (raw/ as Evidence Layer)
 
@@ -113,15 +152,55 @@ There is **no `wiki/raw/`**. Wiki pages that need to cite evidence use `[[raw/YY
 
 ### Phase 3 — Connection Bridge (graphify/ as How Layer)
 
+**根據 Phase 0.4 評估結果，選擇性執行：**
+
+#### SMALL: 跳過 graphify/mcp
+LLM 本身就擅長理解小型程式碼的關聯性。直接進入 Phase 4。
+理由：工具的啟動成本 > LLM 自己理解的成本
+
+#### MEDIUM: graphify 關鍵模組
+只對以下模組執行 graphify：
+- 被多個模組依賴的（hub functions）
+- 跨 repo 的介面
+- 外部依賴密集的模組
+理由：不需要全域圖，局部關聯已足夠
+
 3.1 Install graphify: `uv tool install graphifyy`
-3.2 For each repo in `repos/`, run:
+3.2 For **關鍵模組** in `repos/`, run:
    ```
    cd repos/<repo-name> && graphify . --output-dir ../../graphify/<repo-name>/ --mode deep
    ```
-3.3 For multi-repo: also generate merged `graphify-out/` at workspace root
-   (cross-repo relationship view)
-3.4 Agent reads `graphify/GRAPH_REPORT.md` + `graph.json` per repo
-3.5 Proposes wiki entity/concept/pattern candidates
+3.3 Agent reads `graphify/GRAPH_REPORT.md` + `graph.json` for key modules only
+3.4 Proposes wiki entity/concept/pattern candidates
+
+#### LARGE: codebase-memory-mcp + 完整 graphify
+
+**3.1 安裝 codebase-memory-mcp:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash
+```
+
+**3.2 索引所有 repos:**
+```bash
+codebase-memory-mcp index_repository --repo-path "$PATH/repos/repo-a"
+codebase-memory-mcp index_repository --repo-path "$PATH/repos/repo-b"
+# ... all repos
+```
+
+**3.3 graphify cross-repo merge:**
+```bash
+graphify merge "$PATH/graphify/" --output "$PATH/graphify-out/" --mode deep
+```
+
+**3.4 Agent reads codebase-memory-mcp graph + graphify output:**
+- `codebase-memory-mcp get_architecture` — 程式碼概覽
+- `codebase-memory-mcp trace_path` — 關鍵函數的 call chain
+- `codebase-memory-mcp query_graph` — Cypher 查詢
+- `graphify/GRAPH_REPORT.md` — cross-repo 關係
+
+**3.5 Proposes wiki entity/concept/pattern candidates**
+
+**注意：** 對於小/中專案，跳過此階段直接進入 Phase 4。
 
 ### Phase 4 — Knowledge Curation (wiki/ + spec/)
 
@@ -407,7 +486,8 @@ End User → Chatbot RAG
 
 ## Constraints
 
-- **Step 4 (/graphify) is MANDATORY — do not skip**
+- **Phase 3 (/graphify or codebase-memory-mcp) is MANDATORY for MEDIUM and LARGE — do not skip**
+- **For SMALL projects: skip Phase 3, LLM directly understands code relations**
 - **Wiki content MUST go through PR review — never auto-merge**
 - Do NOT modify `raw/` after creation (append-only; `raw/` is the single canonical evidence layer)
 - Do NOT create `wiki/raw/` or any parallel evidence layer — wiki pages must cite `raw/` directly via wikilinks
@@ -426,3 +506,4 @@ End User → Chatbot RAG
 - v2.3: Git-native Knowledge Wiki + mandatory PR review
 - **v2.4: Evidence Layer (raw), Code Layer (repos), Connection Bridge (graphify), Procedural Architecture in wiki, multi-repo support**
 - **v2.4.1: Removed `wiki/raw/` entirely. `raw/` is the single canonical evidence source. Wiki pages cite `raw/` via `[[raw/...]]` wikilinks — no parallel evidence layer.**
+- **v2.5: Size-based tool selection — LLM擅長理解小型程式碼，工具增強大型專案。Phase 0 新增大小評估，Phase 3 條件化（SMALL跳過、M只能graphify、L標配codebase-memory-mcp）。**
